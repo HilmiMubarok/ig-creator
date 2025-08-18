@@ -122,26 +122,64 @@ const { chromium } = require("playwright");
     console.error('Error handling birthday form:', birthdayError);
   }
 
-  // 3. cek berkala inbox tempmail
+  // 3. cek berkala inbox tempmail dengan pencarian subject
   let code = null;
-  for (let i = 0; i < 10; i++) {
-    await page.reload();
-    // cek apakah ada email masuk
-    const mailRow = await page.$(".inbox-dataList ul li a");
-    if (mailRow) {
-      await mailRow.click();
-      await page.waitForSelector(".inbox-data-content-intro");
-      const mailContent = await page.textContent(".inbox-data-content-intro");
-      console.log("Mail content:", mailContent);
-
-      // ekstrak kode (biasanya 6 digit)
-      const match = mailContent.match(/(\d{6})/);
-      if (match) {
-        code = match[1];
-        break;
+  const maxAttempts = 20; // Increase attempts untuk memberikan lebih banyak waktu
+  const checkInterval = 3000; // 3 detik interval
+  
+  console.log(`Starting email check process. Will check for ${maxAttempts} times every ${checkInterval/1000} seconds...`);
+  
+  for (let i = 0; i < maxAttempts; i++) {
+    console.log(`Email check attempt ${i + 1}/${maxAttempts}`);
+    
+        try {
+      // Refresh halaman untuk memastikan email terbaru dimuat
+      await page.waitForTimeout(2000);
+      
+      // Cek semua elemen email-subject dan ambil yang berisi kode
+      const emailSubjectElements = await page.$$('.email-subject');
+      
+      if (emailSubjectElements.length > 0) {
+        console.log(`Found ${emailSubjectElements.length} email-subject elements`);
+        
+        for (let k = 0; k < emailSubjectElements.length; k++) {
+          const subjectText = await emailSubjectElements[k].textContent();
+          console.log(`Email subject ${k + 1}: "${subjectText}"`);
+          
+          // Cek apakah subject berisi kode Instagram (6 digit + "instagram code")
+          if (subjectText && subjectText.toLowerCase().includes('instagram code')) {
+            console.log('✅ Found Instagram code email!');
+            
+            // Ekstrak kode 6 digit dari subject
+            const match = subjectText.match(/(\d{6})/);
+            if (match) {
+              code = match[1];
+              console.log(`✅ Extracted verification code: ${code}`);
+              break;
+            }
+          }
+        }
+        
+        if (code) break;
+      } else {
+        console.log('No email-subject elements found yet');
+      }
+       
+     } catch (checkErr) {
+      console.log(`Error during check attempt ${i + 1}:`, checkErr.message);
+      // Refresh page if there's an error
+      try {
+        await page.goto("https://tempmail.edu.kg/en/");
+        await page.waitForTimeout(2000);
+      } catch (refreshErr) {
+        console.log('Failed to refresh page:', refreshErr.message);
       }
     }
-    await new Promise((r) => setTimeout(r, 5000));
+    
+    if (i < maxAttempts - 1) {
+      console.log(`Waiting ${checkInterval/1000} seconds before next check...`);
+      await new Promise((r) => setTimeout(r, checkInterval));
+    }
   }
 
   if (!code) {
@@ -155,25 +193,64 @@ const { chromium } = require("playwright");
   // 4. masukkan kode verifikasi di Instagram
   console.log('Entering verification code:', code);
   try {
-    // Wait for the verification code input field
-    await ig.waitForSelector('input[name=confirmationCode]', { timeout: 10000 });
+    // Wait for the verification code input field dengan selector yang benar
+    await ig.waitForSelector('input[name=email_confirmation_code]', { timeout: 15000 });
+    console.log('Found verification code input field');
     
     // Fill in the verification code
-    await ig.fill('input[name=confirmationCode]', code);
-    console.log('Filled verification code');
+    await ig.fill('input[name=email_confirmation_code]', code);
+    console.log('Filled verification code:', code);
     
     // Take a screenshot after filling the code
     await ig.screenshot({ path: 'after-code-entry.png' });
+    console.log('Screenshot taken after entering code');
+    
+    // Wait a bit before clicking submit
+    await ig.waitForTimeout(2000);
     
     // Click the submit button
-    await ig.click('button[type=submit]');
-    console.log('Clicked submit button for verification code');
+    try {
+      await Promise.any([
+        ig.click('button[type=submit]'),
+        ig.click('button:has-text("Next")'),
+        ig.click('button:has-text("Confirm")'),
+        ig.click('button._acan._acap._acas._aj1-'),
+        ig.click('div[role="button"]:has-text("Next")'),
+        ig.click('.x1i10hfl.xjqpnuy.xc5r6h4.xqeqjp1:has-text("Next")')
+      ]);
+      console.log('Clicked submit button for verification code');
+    } catch (submitErr) {
+      console.log('Trying alternative submit methods...');
+      
+      // Try clicking the specific div with Next text
+      try {
+        await ig.click('div[role="button"]:has-text("Next")');
+        console.log('Clicked Next div button');
+      } catch (divErr) {
+        console.log('Trying to click by class selector...');
+        try {
+          // Try the exact class selector you provided
+          await ig.click('.x1i10hfl.xjqpnuy.xc5r6h4.xqeqjp1.x1phubyo.x972fbf.x10w94by.x1qhh985.x14e42zd.xdl72j9.x2lah0s.x3ct3a4.xdj266r.x14z9mp.xat24cr.x1lziwak.x2lwn1j.xeuugli.xexx8yu.x18d9i69.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x1lku1pv.x1a2a7pz.x6s0dn4.xjyslct.x1obq294.x5a5i1n.xde0f50.x15x8krk.x1ejq31n.x18oe1m7.x1sy0etr.xstzfhl.x9f619.x9bdzbf.x1ypdohk.x1f6kntn.xwhw2v2.x10w6t97.xl56j7k.x17ydfre.xf7dkkf.xv54qhq.x1n2onr6.x2b8uid.xlyipyv.x87ps6o.x5c86q.x18br7mf.x1i0vuye.xh8yej3.x18cabeq.x158me93.xk4oym4.x1uugd1q.x3nfvp2');
+          console.log('Clicked Next button using full class selector');
+        } catch (classErr) {
+          console.log('All submit methods failed, trying Enter key...');
+          // Try pressing Enter key as last resort
+          await ig.press('input[name=email_confirmation_code]', 'Enter');
+          console.log('Pressed Enter on verification code input');
+        }
+      }
+    }
     
     // Wait for the next page to load
     await ig.waitForTimeout(5000);
     await ig.screenshot({ path: 'after-verification.png' });
+    console.log('Screenshot taken after verification');
+    
   } catch (verifyErr) {
     console.error('Error during verification code entry:', verifyErr);
+    // Take screenshot for debugging
+    await ig.screenshot({ path: 'verification-error.png' });
+    console.log('Screenshot taken for debugging verification error');
   }
 
   console.log("Signup process attempted!");
