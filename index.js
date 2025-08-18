@@ -1,39 +1,91 @@
 // install dulu: npm install playwright
-// jalankan: node instagram_signup.js
+// jalankan: node index.js
 
 const { chromium } = require("playwright");
+const fs = require("fs");
+const path = require("path");
 
-(async () => {
-  const browser = await chromium.launch({ headless: false }); // ganti true jika ingin headless
+// Function to save account data to JSON
+function saveAccountToJSON(accountData) {
+  const accountsFile = path.join(__dirname, 'accounts.json');
+  let accounts = [];
+  
+  // Read existing accounts if file exists
+  if (fs.existsSync(accountsFile)) {
+    try {
+      const data = fs.readFileSync(accountsFile, 'utf8');
+      accounts = JSON.parse(data);
+    } catch (err) {
+      console.log('Error reading accounts file, starting fresh:', err.message);
+      accounts = [];
+    }
+  }
+  
+  // Add new account
+  accounts.push({
+    ...accountData,
+    createdAt: new Date().toISOString(),
+    id: accounts.length + 1
+  });
+  
+  // Save updated accounts
+  try {
+    fs.writeFileSync(accountsFile, JSON.stringify(accounts, null, 2));
+    console.log(`✅ Account saved to accounts.json (Total: ${accounts.length})`);
+  } catch (err) {
+    console.error('❌ Error saving account:', err.message);
+  }
+}
+
+// Function to create single Instagram account
+async function createInstagramAccount(accountNumber, browser) {
+  console.log(`\n🚀 Starting account creation ${accountNumber}/10...`);
+  
+  const accountData = {
+    email: '',
+    fullName: '',
+    username: '',
+    password: 'Password123!',
+    verificationCode: '',
+    status: 'failed',
+    error: null
+  };
+
   const page = await browser.newPage();
 
-  // 1. buka temp mail
-  await page.goto("https://tempmail.edu.kg/en/");
+  try {
+    // 1. buka temp mail
+    await page.goto("https://tempmail.edu.kg/en/");
 
-  // tunggu sampai email muncul
-  // Wait for 3 seconds before getting the email
-  // Wait until the email value contains .edu.kg
-  const email = await page.waitForFunction(() => {
-    const emailInput = document.querySelector('#emailInput');
-    return emailInput && emailInput.value && emailInput.value.includes('.edu.kg');
-  }).then(() => page.$eval('#emailInput', (el) => el.value));
-  console.log("Generated temp email:", email);
+    // tunggu sampai email muncul
+    // Wait for 3 seconds before getting the email
+    // Wait until the email value contains .edu.kg
+    const email = await page.waitForFunction(() => {
+      const emailInput = document.querySelector('#emailInput');
+      return emailInput && emailInput.value && emailInput.value.includes('.edu.kg');
+    }).then(() => page.$eval('#emailInput', (el) => el.value));
+    console.log("Generated temp email:", email);
+    accountData.email = email;
 
-  // 2. buka instagram signup
-  const ig = await browser.newPage();
-  await ig.goto("https://www.instagram.com/accounts/emailsignup/");
+    // 2. buka instagram signup
+    const ig = await browser.newPage();
+    await ig.goto("https://www.instagram.com/accounts/emailsignup/");
 
-  // isi form instagram (email, fullname, username, password)
-  await ig.waitForSelector("input[name=emailOrPhone]");
-  await ig.fill("input[name=emailOrPhone]", email);
-  await ig.fill("input[name=fullName]", "Test Account");
-  await ig.fill(
-    "input[name=username]",
-    "test" + Math.floor(Math.random() * 1000000)
-  );
-  await ig.fill("input[name=password]", "Password123!");
+    // isi form instagram (email, fullname, username, password)
+    await ig.waitForSelector("input[name=emailOrPhone]");
+    await ig.fill("input[name=emailOrPhone]", email);
+    
+    const fullName = "John Doe " + Math.floor(Math.random() * 1000);
+    await ig.fill("input[name=fullName]", fullName);
+    accountData.fullName = fullName;
+    
+    const username = "john_doe_" + Math.floor(Math.random() * 1000);
+    await ig.fill("input[name=username]", username);
+    accountData.username = username;
+    
+    await ig.fill("input[name=password]", "Password123!");
 
-  await ig.click("button[type=submit]");
+    await ig.click("button[type=submit]");
 
   // Handle birthday form first
   try {
@@ -154,6 +206,7 @@ const { chromium } = require("playwright");
             const match = subjectText.match(/(\d{6})/);
             if (match) {
               code = match[1];
+              accountData.verificationCode = code;
               console.log(`✅ Extracted verification code: ${code}`);
               break;
             }
@@ -253,8 +306,87 @@ const { chromium } = require("playwright");
     console.log('Screenshot taken for debugging verification error');
   }
 
-  console.log("Signup process attempted!");
+    console.log("Signup process attempted!");
+    
+    // Mark as successful if we got this far
+    accountData.status = 'success';
+    
+    // Close pages but keep browser open for next account
+    await page.close();
+    await ig.close();
+    
+  } catch (error) {
+    console.error(`❌ Error creating account ${accountNumber}:`, error.message);
+    accountData.error = error.message;
+    accountData.status = 'failed';
+    
+    // Close pages even if there was an error
+    try {
+      await page.close();
+    } catch (closeErr) {
+      console.log('Error closing temp mail page:', closeErr.message);
+    }
+    
+    try {
+      const ig = await browser.newPage(); // Get reference if it exists
+      await ig.close();
+    } catch (closeErr) {
+      console.log('Error closing Instagram page:', closeErr.message);
+    }
+  }
+  
+  // Save account data regardless of success or failure
+  saveAccountToJSON(accountData);
+  
+  return accountData;
+}
 
-  // Jangan lupa tutup browser
-  // await browser.close();
+// Main function to run the loop
+(async () => {
+  console.log('🎯 Starting Instagram account creation bot - 10 accounts');
+  console.log('📝 Accounts will be saved to accounts.json');
+  
+  const browser = await chromium.launch({ headless: false });
+  const results = [];
+  
+  try {
+    for (let i = 1; i <= 10; i++) {
+      console.log(`\n${'='.repeat(50)}`);
+      console.log(`🔄 Creating account ${i}/10`);
+      console.log(`${'='.repeat(50)}`);
+      
+      const result = await createInstagramAccount(i, browser);
+      results.push(result);
+      
+      // Add delay between account creations
+      if (i < 10) {
+        console.log('\n⏱️  Waiting 30 seconds before next account...');
+        await new Promise(resolve => setTimeout(resolve, 30000));
+      }
+    }
+    
+  } catch (error) {
+    console.error('❌ Fatal error in main loop:', error.message);
+  } finally {
+    await browser.close();
+    
+    // Summary
+    console.log('\n' + '='.repeat(60));
+    console.log('📊 FINAL SUMMARY');
+    console.log('='.repeat(60));
+    
+    const successful = results.filter(r => r.status === 'success').length;
+    const failed = results.filter(r => r.status === 'failed').length;
+    
+    console.log(`✅ Successful accounts: ${successful}/10`);
+    console.log(`❌ Failed accounts: ${failed}/10`);
+    console.log('📁 All account data saved to accounts.json');
+    
+    if (successful > 0) {
+      console.log('\n🎉 Successfully created accounts:');
+      results.filter(r => r.status === 'success').forEach((acc, idx) => {
+        console.log(`${idx + 1}. ${acc.username} (${acc.email})`);
+      });
+    }
+  }
 })();

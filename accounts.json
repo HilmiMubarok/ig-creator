@@ -1,0 +1,112 @@
+[
+  {
+    "email": "1hdud032au@tempmail.edu.kg",
+    "fullName": "John Doe 152",
+    "username": "john_doe_577",
+    "password": "Password123!",
+    "verificationCode": "158462",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-08-18T04:55:59.120Z",
+    "id": 1
+  },
+  {
+    "email": "",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForFunction: Timeout 30000ms exceeded.",
+    "createdAt": "2025-08-18T04:57:04.291Z",
+    "id": 2
+  },
+  {
+    "email": "",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://tempmail.edu.kg/en/\", waiting until \"load\"\u001b[22m\n",
+    "createdAt": "2025-08-18T04:58:05.046Z",
+    "id": 3
+  },
+  {
+    "email": "",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForFunction: Timeout 30000ms exceeded.",
+    "createdAt": "2025-08-18T04:59:11.114Z",
+    "id": 4
+  },
+  {
+    "email": "m_furqplom@tempmail.edu.kg",
+    "fullName": "John Doe 93",
+    "username": "john_doe_83",
+    "password": "Password123!",
+    "verificationCode": "420753",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-08-18T05:00:09.561Z",
+    "id": 5
+  },
+  {
+    "email": "iyxvp5kwwc@tempmail.edu.kg",
+    "fullName": "John Doe 637",
+    "username": "john_doe_114",
+    "password": "Password123!",
+    "verificationCode": "831574",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-08-18T05:01:10.171Z",
+    "id": 6
+  },
+  {
+    "email": "jc4mlucrsk@tempmail.edu.kg",
+    "fullName": "John Doe 258",
+    "username": "john_doe_349",
+    "password": "Password123!",
+    "verificationCode": "102375",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-08-18T05:02:11.137Z",
+    "id": 7
+  },
+  {
+    "email": "",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForFunction: Timeout 30000ms exceeded.",
+    "createdAt": "2025-08-18T05:03:16.036Z",
+    "id": 8
+  },
+  {
+    "email": "",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForFunction: Timeout 30000ms exceeded.",
+    "createdAt": "2025-08-18T05:04:24.075Z",
+    "id": 9
+  },
+  {
+    "email": "a4yc8lt0pc@tempmail.edu.kg",
+    "fullName": "John Doe 474",
+    "username": "john_doe_340",
+    "password": "Password123!",
+    "verificationCode": "475968",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-08-18T05:05:37.036Z",
+    "id": 10
+  }
+]
