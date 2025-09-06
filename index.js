@@ -422,7 +422,7 @@ function getExistingAccountsCount() {
 
 // Main function to run the loop
 (async () => {
-  const targetAccounts = 10;
+  const targetAccounts = 1000;
   const existingCount = getExistingAccountsCount();
   const remainingAccounts = Math.max(0, targetAccounts - existingCount);
   
