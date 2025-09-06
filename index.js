@@ -403,26 +403,56 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
   return accountData;
 }
 
+// Function to get existing accounts count
+function getExistingAccountsCount() {
+  const accountsFile = path.join(__dirname, 'accounts.json');
+  if (fs.existsSync(accountsFile)) {
+    try {
+      const data = fs.readFileSync(accountsFile, 'utf8');
+      if (data.trim()) {
+        const accounts = JSON.parse(data);
+        return accounts.length;
+      }
+    } catch (err) {
+      console.log('Error reading existing accounts:', err.message);
+    }
+  }
+  return 0;
+}
+
 // Main function to run the loop
 (async () => {
-  console.log('🎯 Starting Instagram account creation bot - 10 accounts');
+  const targetAccounts = 10;
+  const existingCount = getExistingAccountsCount();
+  const remainingAccounts = Math.max(0, targetAccounts - existingCount);
+  
+  console.log('🎯 Starting Instagram account creation bot');
+  console.log(`📊 Existing accounts: ${existingCount}`);
+  console.log(`🎯 Target accounts: ${targetAccounts}`);
+  console.log(`📝 Remaining to create: ${remainingAccounts}`);
   console.log('📝 Accounts will be saved to accounts.json');
   console.log('🌐 Using proxychains4 for proxy support');
+  
+  if (remainingAccounts === 0) {
+    console.log('✅ All target accounts already created!');
+    return;
+  }
   
   const browser = await chromium.launch({ headless: true });
   const results = [];
   
   try {
-    for (let i = 1; i <= 1000; i++) {
+    for (let i = 1; i <= remainingAccounts; i++) {
+      const currentAccountNumber = existingCount + i;
       console.log(`\n${'='.repeat(50)}`);
-      console.log(`🔄 Creating account ${i}/10`);
+      console.log(`🔄 Creating account ${currentAccountNumber}/${targetAccounts} (${i}/${remainingAccounts} remaining)`);
       console.log(`${'='.repeat(50)}`);
       
-      const result = await createInstagramAccount(i, browser);
+      const result = await createInstagramAccount(currentAccountNumber, browser);
       results.push(result);
       
       // Add delay between account creations
-      if (i < 10) {
+      if (i < remainingAccounts) {
         console.log('\n⏱️  Waiting 30 seconds before next account...');
         await new Promise(resolve => setTimeout(resolve, 3000));
       }
@@ -438,15 +468,17 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
     console.log('📊 FINAL SUMMARY');
     console.log('='.repeat(60));
     
+    const totalExisting = getExistingAccountsCount();
     const successful = results.filter(r => r.status === 'success').length;
     const failed = results.filter(r => r.status === 'failed').length;
     
-    console.log(`✅ Successful accounts: ${successful}/10`);
-    console.log(`❌ Failed accounts: ${failed}/10`);
+    console.log(`📊 Total accounts in file: ${totalExisting}`);
+    console.log(`✅ Successful in this run: ${successful}/${remainingAccounts}`);
+    console.log(`❌ Failed in this run: ${failed}/${remainingAccounts}`);
     console.log('📁 All account data saved to accounts.json');
     
     if (successful > 0) {
-      console.log('\n🎉 Successfully created accounts:');
+      console.log('\n🎉 Successfully created accounts in this run:');
       results.filter(r => r.status === 'success').forEach((acc, idx) => {
         console.log(`${idx + 1}. ${acc.username} (${acc.email})`);
       });
