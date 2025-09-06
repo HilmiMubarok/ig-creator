@@ -407,6 +407,7 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
 (async () => {
   console.log('🎯 Starting Instagram account creation bot - 10 accounts');
   console.log('📝 Accounts will be saved to accounts.json');
+  console.log('🌐 Using proxychains4 for proxy support');
   
   const browser = await chromium.launch({ headless: true });
   const results = [];
