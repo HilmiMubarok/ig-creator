@@ -14,7 +14,12 @@ function saveAccountToJSON(accountData) {
   if (fs.existsSync(accountsFile)) {
     try {
       const data = fs.readFileSync(accountsFile, 'utf8');
-      accounts = JSON.parse(data);
+      if (data.trim()) {
+        accounts = JSON.parse(data);
+      } else {
+        console.log('Accounts file is empty, starting fresh');
+        accounts = [];
+      }
     } catch (err) {
       console.log('Error reading accounts file, starting fresh:', err.message);
       accounts = [];
@@ -38,7 +43,7 @@ function saveAccountToJSON(accountData) {
 }
 
 // Function to create single Instagram account
-async function createInstagramAccount(accountNumber, browser) {
+async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
   console.log(`\n🚀 Starting account creation ${accountNumber}/10...`);
   
   const accountData = {
@@ -51,40 +56,82 @@ async function createInstagramAccount(accountNumber, browser) {
     error: null
   };
 
-  const page = await browser.newPage();
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    console.log(`\n📝 Attempt ${attempt}/${maxRetries} for account ${accountNumber}`);
+    
+    const page = await browser.newPage();
 
-  try {
+    try {
     // 1. buka temp mail
-    await page.goto("https://tempmail.edu.kg/en/");
+    console.log("Opening temp mail service...");
+    await page.goto("https://etempmail.com/", { waitUntil: 'networkidle' });
 
     // tunggu sampai email muncul
-    // Wait for 3 seconds before getting the email
-    // Wait until the email value contains .edu.kg
+    // Wait for the email to be generated and not show "Please wait..."
+    console.log("Waiting for email generation...");
     const email = await page.waitForFunction(() => {
-      const emailInput = document.querySelector('#emailInput');
-      return emailInput && emailInput.value && emailInput.value.includes('.edu.kg');
-    }).then(() => page.$eval('#emailInput', (el) => el.value));
-    console.log("Generated temp email:", email);
+      const emailInput = document.querySelector('#tempEmailAddress');
+      return emailInput && emailInput.value && emailInput.value !== 'Please wait...' && emailInput.value.includes('@');
+    }, { timeout: 30000 }).then(() => page.$eval('#tempEmailAddress', (el) => el.value));
+    console.log("✅ Generated temp email:", email);
     accountData.email = email;
 
     // 2. buka instagram signup
+    console.log("Opening Instagram signup page...");
     const ig = await browser.newPage();
-    await ig.goto("https://www.instagram.com/accounts/emailsignup/");
+    
+    // Try to load Instagram with different strategies
+    let instagramLoaded = false;
+    for (let retry = 0; retry < 3; retry++) {
+      try {
+        console.log(`Instagram load attempt ${retry + 1}/3...`);
+        await ig.goto("https://www.instagram.com/accounts/emailsignup/", { 
+          waitUntil: 'domcontentloaded',
+          timeout: 20000 
+        });
+        instagramLoaded = true;
+        break;
+      } catch (err) {
+        console.log(`Instagram load attempt ${retry + 1} failed:`, err.message);
+        if (retry < 2) {
+          console.log("Retrying in 5 seconds...");
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      }
+    }
+    
+    if (!instagramLoaded) {
+      throw new Error("Failed to load Instagram after 3 attempts");
+    }
 
     // isi form instagram (email, fullname, username, password)
-    await ig.waitForSelector("input[name=emailOrPhone]");
+    console.log("Filling Instagram signup form...");
+    await ig.waitForSelector("input[name=emailOrPhone]", { timeout: 15000 });
     await ig.fill("input[name=emailOrPhone]", email);
     
-    const fullName = "John Doe " + Math.floor(Math.random() * 1000);
+    const firstNames = ["John", "James", "Michael", "David", "Robert", "William", "Christopher", "Joseph", "Thomas", "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George", "Timothy", "Ronald", "Jason", "Edward", "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon", "Benjamin", "Samuel", "Gregory", "Alexander", "Patrick", "Frank", "Raymond", "Jack", "Dennis", "Jerry", "Tyler", "Aaron", "Jose", "Henry", "Adam", "Douglas", "Nathan", "Peter", "Zachary", "Kyle", "Walter", "Harold", "Jeremy", "Ethan", "Carl", "Arthur", "Gerald", "Lawrence", "Sean", "Christian", "Allan", "Mason", "Maria", "Sarah", "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Emily", "Ashley", "Jessica", "Samantha", "Rachel", "Katherine", "Emma", "Olivia", "Sophia", "Ava", "Isabella", "Mia", "Charlotte", "Ahmad", "Budi", "Agus", "Sari", "Dewi", "Indra", "Andi", "Rini", "Dian", "Eko", "Fitri", "Hadi", "Ika", "Joko", "Kartika", "Lina", "Maya", "Nita", "Oki", "Putra", "Ratna", "Sinta", "Tono", "Umi", "Vina", "Wati", "Yanti", "Zaki", "Asep", "Cecep", "Dede", "Endang", "Gina", "Hendra", "Irma", "Jamal", "Kiki", "Lilis", "Mamay", "Neng", "Odah", "Pepen", "Qori", "Riri", "Susi", "Teti", "Uus", "Vivi", "Wawan", "Yayah", "Zaenal", "Aang", "Bambang", "Cucu", "Dadang", "Euis", "Fuad", "Gungun", "Heri", "Iin", "Jajang", "Kang", "Lela", "Maman", "Nana", "Otong", "Pepep", "Qodir", "Rudi", "Sule", "Tatang", "Ujang", "Veri", "Wawan", "Yogi", "Zulkifli"];
+    const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores", "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey", "Reed", "Kelly", "Howard", "Ramos", "Kim", "Cox", "Ward", "Richardson", "Watson", "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes", "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster", "Jimenez", "Santoso", "Wijaya", "Kusuma", "Pratama", "Sari", "Putri", "Wibowo", "Utomo", "Handoko", "Gunawan", "Susanto", "Saputra", "Lestari", "Rahayu", "Purnomo", "Setiawan", "Hakim", "Nurdin", "Rahman", "Suryani", "Permana", "Safitri", "Mahendra", "Anggraeni", "Nugroho", "Fitriani", "Kurniawan", "Maharani", "Rachmad", "Kartika", "Hermawan", "Sulistyo", "Dwiyanto", "Setiadji", "Mulyana", "Ramdani", "Sukmawati", "Suhendar", "Nursyamsi", "Hermansyah", "Suryadi", "Nurhayati", "Darmawan", "Wardhani", "Sudrajat", "Andriani", "Kusumawati", "Rismayanti", "Komarudin", "Solihat", "Wahyudin", "Novianti", "Febrianti", "Ramdhani", "Marlina", "Iskandar", "Fauziah", "Sopandi", "Hidayat", "Mustofa", "Nugraha", "Firmansyah", "Susilawati", "Saepudin", "Rahayu", "Sumardi", "Supartini", "Hendriawan", "Mutmainah", "Priatna", "Rosdiana", "Daryono", "Yulianti"];
+    const usernameWords = ["alpha", "beta", "gamma", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliet", "kilo", "lima", "mike", "november", "oscar", "papa", "quebec", "romeo", "sierra", "tango", "uniform", "victor", "whiskey", "xray", "yankee", "zulu", "awesome", "cool", "super", "mega", "ultra", "power", "force", "storm", "thunder", "lightning", "fire", "ice", "wind", "earth", "water", "shadow", "light", "dark", "bright", "swift", "rapid", "fast", "quick", "smart", "wise", "brave", "bold", "strong", "tough", "hard", "solid", "steel", "iron", "gold", "silver", "diamond", "crystal", "gem", "star", "moon", "sun", "sky", "blue", "red", "green", "purple", "orange", "yellow", "black", "white", "grey", "pink"];
+    
+    const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const randomNumber = Math.floor(Math.random() * 1000);
+    
+    const fullName = `${randomFirstName} ${randomLastName} ${randomNumber}`;
     await ig.fill("input[name=fullName]", fullName);
     accountData.fullName = fullName;
+    console.log("Full name:", fullName);
     
-    const username = "john_doe_" + Math.floor(Math.random() * 1000);
+    const randomWord1 = usernameWords[Math.floor(Math.random() * usernameWords.length)];
+    const randomWord2 = usernameWords[Math.floor(Math.random() * usernameWords.length)];
+    const randomNumberForUsername = Math.floor(Math.random() * 10000);
+    const username = `${randomWord1}_${randomWord2}_${randomNumberForUsername}`;
     await ig.fill("input[name=username]", username);
     accountData.username = username;
-    
+    console.log("Username:", username);
     await ig.fill("input[name=password]", "Password123!");
 
+    console.log("Submitting Instagram signup form...");
     await ig.click("button[type=submit]");
 
   // Handle birthday form first
@@ -188,41 +235,44 @@ async function createInstagramAccount(accountNumber, browser) {
       // Refresh halaman untuk memastikan email terbaru dimuat
       await page.waitForTimeout(2000);
       
-      // Cek semua elemen email-subject dan ambil yang berisi kode
-      const emailSubjectElements = await page.$$('.email-subject');
+      // Cek semua elemen email dalam inbox table
+      const emailRows = await page.$$('table tbody tr');
       
-      if (emailSubjectElements.length > 0) {
-        console.log(`Found ${emailSubjectElements.length} email-subject elements`);
+      if (emailRows.length > 0) {
+        console.log(`Found ${emailRows.length} email rows`);
         
-        for (let k = 0; k < emailSubjectElements.length; k++) {
-          const subjectText = await emailSubjectElements[k].textContent();
-          console.log(`Email subject ${k + 1}: "${subjectText}"`);
-          
-          // Cek apakah subject berisi kode Instagram (6 digit + "instagram code")
-          if (subjectText && subjectText.toLowerCase().includes('instagram code')) {
-            console.log('✅ Found Instagram code email!');
+        for (let k = 0; k < emailRows.length; k++) {
+          const subjectCell = await emailRows[k].$('td:nth-child(2)'); // Subject is in second column
+          if (subjectCell) {
+            const subjectText = await subjectCell.textContent();
+            console.log(`Email subject ${k + 1}: "${subjectText}"`);
             
-            // Ekstrak kode 6 digit dari subject
-            const match = subjectText.match(/(\d{6})/);
-            if (match) {
-              code = match[1];
-              accountData.verificationCode = code;
-              console.log(`✅ Extracted verification code: ${code}`);
-              break;
+            // Cek apakah subject berisi kode Instagram (6 digit + "instagram code")
+            if (subjectText && subjectText.toLowerCase().includes('instagram code')) {
+              console.log('✅ Found Instagram code email!');
+              
+              // Ekstrak kode 6 digit dari subject
+              const match = subjectText.match(/(\d{6})/);
+              if (match) {
+                code = match[1];
+                accountData.verificationCode = code;
+                console.log(`✅ Extracted verification code: ${code}`);
+                break;
+              }
             }
           }
         }
         
         if (code) break;
       } else {
-        console.log('No email-subject elements found yet');
+        console.log('No email rows found yet');
       }
        
      } catch (checkErr) {
       console.log(`Error during check attempt ${i + 1}:`, checkErr.message);
       // Refresh page if there's an error
       try {
-        await page.goto("https://tempmail.edu.kg/en/");
+        await page.goto("https://etempmail.com/");
         await page.waitForTimeout(2000);
       } catch (refreshErr) {
         console.log('Failed to refresh page:', refreshErr.message);
@@ -306,38 +356,50 @@ async function createInstagramAccount(accountNumber, browser) {
     console.log('Screenshot taken for debugging verification error');
   }
 
-    console.log("Signup process attempted!");
-    
-    // Mark as successful if we got this far
-    accountData.status = 'success';
-    
-    // Close pages but keep browser open for next account
-    await page.close();
-    await ig.close();
-    
-  } catch (error) {
-    console.error(`❌ Error creating account ${accountNumber}:`, error.message);
-    accountData.error = error.message;
-    accountData.status = 'failed';
-    
-    // Close pages even if there was an error
-    try {
+      console.log("Signup process attempted!");
+      
+      // Mark as successful if we got this far
+      accountData.status = 'success';
+      
+      // Close pages but keep browser open for next account
       await page.close();
-    } catch (closeErr) {
-      console.log('Error closing temp mail page:', closeErr.message);
-    }
-    
-    try {
-      const ig = await browser.newPage(); // Get reference if it exists
       await ig.close();
-    } catch (closeErr) {
-      console.log('Error closing Instagram page:', closeErr.message);
+      
+      // Save successful account data
+      saveAccountToJSON(accountData);
+      return accountData;
+      
+    } catch (error) {
+      console.error(`❌ Error creating account ${accountNumber} (attempt ${attempt}):`, error.message);
+      accountData.error = error.message;
+      accountData.status = 'failed';
+      
+      // Close pages even if there was an error
+      try {
+        await page.close();
+      } catch (closeErr) {
+        console.log('Error closing temp mail page:', closeErr.message);
+      }
+      
+      try {
+        const ig = await browser.newPage(); // Get reference if it exists
+        await ig.close();
+      } catch (closeErr) {
+        console.log('Error closing Instagram page:', closeErr.message);
+      }
+      
+      // If this was the last attempt, save the failed account data
+      if (attempt === maxRetries) {
+        saveAccountToJSON(accountData);
+        return accountData;
+      } else {
+        console.log(`⏳ Waiting 10 seconds before retry...`);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+      }
     }
   }
   
-  // Save account data regardless of success or failure
-  saveAccountToJSON(accountData);
-  
+  // This should not be reached, but just in case
   return accountData;
 }
 
@@ -361,7 +423,7 @@ async function createInstagramAccount(accountNumber, browser) {
       // Add delay between account creations
       if (i < 10) {
         console.log('\n⏱️  Waiting 30 seconds before next account...');
-        await new Promise(resolve => setTimeout(resolve, 30000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     }
     

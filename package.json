@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "run-single": "node index.js",
+    "run-multiple": "node run-multiple.js",
+    "run-20": "node run-multiple.js 20",
+    "run-50": "node run-multiple.js 50",
+    "run-100": "node run-multiple.js 100",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
