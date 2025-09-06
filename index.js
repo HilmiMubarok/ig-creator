@@ -413,7 +413,7 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
   const results = [];
   
   try {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 1000; i++) {
       console.log(`\n${'='.repeat(50)}`);
       console.log(`🔄 Creating account ${i}/10`);
       console.log(`${'='.repeat(50)}`);
