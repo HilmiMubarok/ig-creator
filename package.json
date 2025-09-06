@@ -9,6 +9,11 @@
     "run-20": "node run-multiple.js 20",
     "run-50": "node run-multiple.js 50",
     "run-100": "node run-multiple.js 100",
+    "run-proxy": "proxychains4 -q node index.js",
+    "run-multiple-proxy": "node run-multiple-proxy.js",
+    "run-20-proxy": "node run-multiple-proxy.js 20",
+    "run-50-proxy": "node run-multiple-proxy.js 50",
+    "run-100-proxy": "node run-multiple-proxy.js 100",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
