@@ -71,7 +71,41 @@ npm install
 
 # Install Playwright system dependencies first
 print_status "Installing Playwright system dependencies..."
-npx playwright install-deps
+
+# Install dependencies based on package manager
+if command -v yum &> /dev/null; then
+    # Amazon Linux/CentOS/RHEL dependencies
+    print_status "Installing Playwright dependencies for Amazon Linux..."
+    sudo yum install -y \
+        atk \
+        at-spi2-atk \
+        libX11 \
+        libXcomposite \
+        libXdamage \
+        libXext \
+        libXfixes \
+        libXrandr \
+        mesa-libgbm \
+        libxcb \
+        libxkbcommon \
+        alsa-lib \
+        libdrm \
+        libxss \
+        libasound2 \
+        libatspi2.0-0 \
+        libgtk-3-0 \
+        libgdk-pixbuf2.0-0
+elif command -v apt &> /dev/null; then
+    # Ubuntu/Debian dependencies
+    print_status "Installing Playwright dependencies for Ubuntu/Debian..."
+    npx playwright install-deps
+elif command -v dnf &> /dev/null; then
+    # Fedora dependencies
+    print_status "Installing Playwright dependencies for Fedora..."
+    npx playwright install-deps
+else
+    print_error "Cannot install Playwright dependencies. Please install manually."
+fi
 
 # Install Playwright browsers
 print_status "Installing Playwright browsers..."
