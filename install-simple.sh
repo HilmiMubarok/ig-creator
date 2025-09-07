@@ -76,6 +76,8 @@ print_status "Installing Playwright system dependencies..."
 if command -v yum &> /dev/null; then
     # Amazon Linux/CentOS/RHEL dependencies
     print_status "Installing Playwright dependencies for Amazon Linux..."
+    
+    # Try to install available packages
     sudo yum install -y \
         atk \
         at-spi2-atk \
@@ -90,11 +92,15 @@ if command -v yum &> /dev/null; then
         libxkbcommon \
         alsa-lib \
         libdrm \
-        libxss \
-        libasound2 \
-        libatspi2.0-0 \
-        libgtk-3-0 \
-        libgdk-pixbuf2.0-0
+        libXScrnSaver \
+        alsa-lib \
+        gtk3 \
+        gdk-pixbuf2 || true
+    
+    # Use Playwright's own dependency installer as fallback
+    print_status "Running Playwright's dependency installer as fallback..."
+    sudo npx playwright install-deps || true
+    
 elif command -v apt &> /dev/null; then
     # Ubuntu/Debian dependencies
     print_status "Installing Playwright dependencies for Ubuntu/Debian..."
@@ -125,5 +131,8 @@ echo ""
 echo "🚀 To start the bot: node index.js"
 echo "📊 Target: 1000 accounts"
 echo "📁 Accounts saved to: accounts.json"
+echo ""
+echo "⚠️  If you still get dependency errors, run:"
+echo "   sudo npx playwright install-deps"
 echo ""
 echo "Ready to create Instagram accounts! 🚀"
