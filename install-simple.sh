@@ -21,14 +21,36 @@ print_success() {
 if ! command -v node &> /dev/null; then
     print_status "Node.js not found. Installing Node.js..."
     
-    # Update system packages
-    print_status "Updating system packages..."
-    sudo apt update
-    
-    # Install Node.js using NodeSource repository
-    print_status "Installing Node.js from NodeSource..."
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    # Detect package manager and install Node.js accordingly
+    if command -v yum &> /dev/null; then
+        # Amazon Linux/CentOS/RHEL
+        print_status "Detected yum package manager (Amazon Linux/CentOS)"
+        print_status "Updating system packages..."
+        sudo yum update -y
+        
+        print_status "Installing Node.js using yum..."
+        sudo yum install -y nodejs npm
+        
+    elif command -v apt &> /dev/null; then
+        # Ubuntu/Debian
+        print_status "Detected apt package manager (Ubuntu/Debian)"
+        print_status "Updating system packages..."
+        sudo apt update
+        
+        print_status "Installing Node.js from NodeSource..."
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+        
+    elif command -v dnf &> /dev/null; then
+        # Fedora
+        print_status "Detected dnf package manager (Fedora)"
+        print_status "Installing Node.js using dnf..."
+        sudo dnf install -y nodejs npm
+        
+    else
+        print_error "Unsupported package manager. Please install Node.js manually."
+        exit 1
+    fi
     
     print_success "Node.js installed successfully"
 else
