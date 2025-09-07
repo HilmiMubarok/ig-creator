@@ -1373,5 +1373,27 @@
     "error": null,
     "createdAt": "2025-09-07T03:00:21.840Z",
     "id": 131
+  },
+  {
+    "email": "fnl9adcysj@usa.edu.pl",
+    "fullName": "Pepen Wibowo 892",
+    "username": "bright_zulu_997",
+    "password": "Password123!",
+    "verificationCode": "368072",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:43:53.560Z",
+    "id": 126
+  },
+  {
+    "email": "n7xftdogc5@beta.edu.pl",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForSelector: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=emailOrPhone]') to be visible\u001b[22m\n",
+    "createdAt": "2025-09-07T15:45:34.843Z",
+    "id": 127
   }
 ]

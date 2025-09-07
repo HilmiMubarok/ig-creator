@@ -139,9 +139,6 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
     console.log('Waiting for birthday form...');
     await ig.waitForTimeout(5000); // Give the page time to load
     
-    // Take a screenshot to see what we're dealing with
-    await ig.screenshot({ path: 'birthday-form.png' });
-    console.log('Saved screenshot of birthday form');
     
     // Simple approach - click directly on the month dropdown (August)
     console.log('Clicking on the month dropdown');
@@ -212,8 +209,6 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
     
     // Wait for verification code page to load
     await ig.waitForTimeout(3000);
-    await ig.screenshot({ path: 'verification-code-page.png' });
-    console.log('Saved screenshot of verification code page');
     
     console.log('Month dropdown click attempt completed');
     console.log('Birthday form handling completed');
@@ -304,9 +299,6 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
     await ig.fill('input[name=email_confirmation_code]', code);
     console.log('Filled verification code:', code);
     
-    // Take a screenshot after filling the code
-    await ig.screenshot({ path: 'after-code-entry.png' });
-    console.log('Screenshot taken after entering code');
     
     // Wait a bit before clicking submit
     await ig.waitForTimeout(2000);
@@ -346,14 +338,9 @@ async function createInstagramAccount(accountNumber, browser, maxRetries = 2) {
     
     // Wait for the next page to load
     await ig.waitForTimeout(5000);
-    await ig.screenshot({ path: 'after-verification.png' });
-    console.log('Screenshot taken after verification');
     
   } catch (verifyErr) {
     console.error('Error during verification code entry:', verifyErr);
-    // Take screenshot for debugging
-    await ig.screenshot({ path: 'verification-error.png' });
-    console.log('Screenshot taken for debugging verification error');
   }
 
       console.log("Signup process attempted!");
