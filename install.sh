@@ -32,24 +32,26 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if running as root
+# Check if running as root and provide guidance
 if [[ $EUID -eq 0 ]]; then
-   print_error "This script should not be run as root for security reasons"
-   exit 1
+   print_warning "Running as root detected. This is acceptable in containerized environments."
+   print_status "Continuing with root installation..."
+else
+   print_status "Running as regular user - good for security!"
 fi
 
 # Update system packages
 print_status "Updating system packages..."
-sudo apt update && sudo apt upgrade -y
+apt update && apt upgrade -y
 
 # Install essential packages
 print_status "Installing essential packages..."
-sudo apt install -y curl wget git build-essential software-properties-common apt-transport-https ca-certificates gnupg lsb-release
+apt install -y curl wget git build-essential software-properties-common apt-transport-https ca-certificates gnupg lsb-release
 
 # Install Node.js (using NodeSource repository for latest LTS)
 print_status "Installing Node.js..."
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
+curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+apt-get install -y nodejs
 
 # Verify Node.js installation
 NODE_VERSION=$(node --version)
@@ -59,7 +61,7 @@ print_success "npm installed: $NPM_VERSION"
 
 # Install Playwright dependencies
 print_status "Installing Playwright system dependencies..."
-sudo apt-get install -y \
+apt-get install -y \
     libnss3 \
     libnspr4 \
     libatk-bridge2.0-0 \
@@ -77,7 +79,7 @@ sudo apt-get install -y \
 
 # Install additional dependencies for headless browser
 print_status "Installing additional browser dependencies..."
-sudo apt-get install -y \
+apt-get install -y \
     fonts-liberation \
     libappindicator3-1 \
     libasound2 \
@@ -93,7 +95,7 @@ sudo apt-get install -y \
     xdg-utils
 
 # Create project directory if it doesn't exist
-PROJECT_DIR="$HOME/ig-creator"
+PROJECT_DIR="/workspace/ig-creator"
 if [ ! -d "$PROJECT_DIR" ]; then
     print_status "Creating project directory: $PROJECT_DIR"
     mkdir -p "$PROJECT_DIR"
@@ -126,14 +128,14 @@ chmod 644 accounts.json
 
 # Create a systemd service file for running as a service (optional)
 print_status "Creating systemd service file..."
-sudo tee /etc/systemd/system/ig-creator.service > /dev/null <<EOF
+tee /etc/systemd/system/ig-creator.service > /dev/null <<EOF
 [Unit]
 Description=Instagram Account Creation Bot
 After=network.target
 
 [Service]
 Type=simple
-User=$USER
+User=root
 WorkingDirectory=$PROJECT_DIR
 ExecStart=/usr/bin/node index.js
 Restart=always
@@ -212,14 +214,14 @@ chmod +x status.sh
 
 # Install jq for JSON processing (used in status script)
 print_status "Installing jq for JSON processing..."
-sudo apt install -y jq
+apt install -y jq
 
 # Create logs directory
 mkdir -p logs
 
 # Final setup
 print_status "Reloading systemd daemon..."
-sudo systemctl daemon-reload
+systemctl daemon-reload
 
 # Installation complete
 echo ""
