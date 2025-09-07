@@ -438,7 +438,9 @@ function getExistingAccountsCount() {
     return;
   }
   
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+  });
   const results = [];
   
   try {
