@@ -17,6 +17,10 @@ print_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
 # Check if Node.js is installed, if not install it
 if ! command -v node &> /dev/null; then
     print_status "Node.js not found. Installing Node.js..."
