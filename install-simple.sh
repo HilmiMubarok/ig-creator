@@ -17,6 +17,24 @@ print_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
+# Check if Node.js is installed, if not install it
+if ! command -v node &> /dev/null; then
+    print_status "Node.js not found. Installing Node.js..."
+    
+    # Update system packages
+    print_status "Updating system packages..."
+    sudo apt update
+    
+    # Install Node.js using NodeSource repository
+    print_status "Installing Node.js from NodeSource..."
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    
+    print_success "Node.js installed successfully"
+else
+    print_success "Node.js already installed"
+fi
+
 # Check Node.js version
 NODE_VERSION=$(node --version)
 print_success "Node.js version: $NODE_VERSION"
