@@ -25,10 +25,13 @@ print_success "Node.js version: $NODE_VERSION"
 print_status "Installing npm dependencies..."
 npm install
 
+# Install Playwright system dependencies first
+print_status "Installing Playwright system dependencies..."
+npx playwright install-deps
+
 # Install Playwright browsers
 print_status "Installing Playwright browsers..."
 npx playwright install chromium
-npx playwright install-deps chromium
 
 # Create accounts.json if it doesn't exist
 if [ ! -f "accounts.json" ]; then
