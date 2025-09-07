@@ -1395,5 +1395,170 @@
     "error": "page.waitForSelector: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=emailOrPhone]') to be visible\u001b[22m\n",
     "createdAt": "2025-09-07T15:45:34.843Z",
     "id": 127
+  },
+  {
+    "email": "mqe4riyfsp@beta.edu.pl",
+    "fullName": "Euis Ramdani 86",
+    "username": "water_golf_8969",
+    "password": "Password123!",
+    "verificationCode": "385946",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:55:02.963Z",
+    "id": 128
+  },
+  {
+    "email": "idbinxxpvl@beta.edu.pl",
+    "fullName": "Iin Marlina 284",
+    "username": "bright_crystal_8636",
+    "password": "Password123!",
+    "verificationCode": "643752",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:55:31.345Z",
+    "id": 129
+  },
+  {
+    "email": "2qam018df5@beta.edu.pl",
+    "fullName": "",
+    "username": "",
+    "password": "Password123!",
+    "verificationCode": "",
+    "status": "failed",
+    "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=emailOrPhone]') to be visible\u001b[22m\n",
+    "createdAt": "2025-09-07T15:56:20.437Z",
+    "id": 130
+  },
+  {
+    "email": "iusoj0n3ki@beta.edu.pl",
+    "fullName": "Benjamin Wijaya 804",
+    "username": "brave_moon_7710",
+    "password": "Password123!",
+    "verificationCode": "958370",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:56:48.862Z",
+    "id": 131
+  },
+  {
+    "email": "kfanzahozq@usa.edu.pl",
+    "fullName": "Qodir Purnomo 224",
+    "username": "quick_wind_3134",
+    "password": "Password123!",
+    "verificationCode": "178596",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:57:17.617Z",
+    "id": 132
+  },
+  {
+    "email": "yr1kofao5x@cross.edu.pl",
+    "fullName": "Robert Moore 238",
+    "username": "rapid_hard_3655",
+    "password": "Password123!",
+    "verificationCode": "813295",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:57:51.693Z",
+    "id": 133
+  },
+  {
+    "email": "hq5ukgxrff@cross.edu.pl",
+    "fullName": "Eric Rosdiana 386",
+    "username": "tough_bright_6703",
+    "password": "Password123!",
+    "verificationCode": "284657",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:24.188Z",
+    "id": 134
+  },
+  {
+    "email": "opcoj9iyxh@usa.edu.pl",
+    "fullName": "Adam Hughes 723",
+    "username": "swift_brave_6109",
+    "password": "Password123!",
+    "verificationCode": "521493",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:24.219Z",
+    "id": 135
+  },
+  {
+    "email": "k10ps8iesl@ohm.edu.pl",
+    "fullName": "Ujang Dwiyanto 587",
+    "username": "power_yellow_2277",
+    "password": "Password123!",
+    "verificationCode": "843962",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:24.246Z",
+    "id": 136
+  },
+  {
+    "email": "26n3k1smec@usa.edu.pl",
+    "fullName": "Lilis Howard 391",
+    "username": "foxtrot_sierra_4706",
+    "password": "Password123!",
+    "verificationCode": "205168",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:28.859Z",
+    "id": 137
+  },
+  {
+    "email": "ev4ae7g39p@beta.edu.pl",
+    "fullName": "Veri Richardson 310",
+    "username": "mike_dark_8580",
+    "password": "Password123!",
+    "verificationCode": "345819",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:48.262Z",
+    "id": 138
+  },
+  {
+    "email": "zswcroxqdh@usa.edu.pl",
+    "fullName": "Pepen Iskandar 433",
+    "username": "gem_fire_5957",
+    "password": "Password123!",
+    "verificationCode": "305869",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:52.793Z",
+    "id": 139
+  },
+  {
+    "email": "npdtu3koif@ohm.edu.pl",
+    "fullName": "Henry Nelson 431",
+    "username": "shadow_crystal_2496",
+    "password": "Password123!",
+    "verificationCode": "056387",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:52.805Z",
+    "id": 140
+  },
+  {
+    "email": "z2j1rtae9a@usa.edu.pl",
+    "fullName": "Jason Nelson 448",
+    "username": "lima_white_695",
+    "password": "Password123!",
+    "verificationCode": "914762",
+    "status": "success",
+    "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=emailOrPhone]') to be visible\u001b[22m\n",
+    "createdAt": "2025-09-07T15:58:56.064Z",
+    "id": 141
+  },
+  {
+    "email": "uqznbprcea@cross.edu.pl",
+    "fullName": "Jason Anggraeni 358",
+    "username": "india_delta_5916",
+    "password": "Password123!",
+    "verificationCode": "258601",
+    "status": "success",
+    "error": null,
+    "createdAt": "2025-09-07T15:58:57.511Z",
+    "id": 142
   }
 ]
